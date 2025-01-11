@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manusia Purba Printout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0px;
+            padding: 0px;
+            border: 1px solid black; /* Border to separate header, body, and footer */
+        }
+        #header, #footer {
+            width: 100%;
+        }
+        #header {
+            background-color: #0069D9; /* Soft blue header */
+            color: white;
+            padding: 0px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            color: white;
+        }
+        #previewContainer {
+            margin-bottom: 20px; /* Add margin below the preview image */
+            text-align: center; /* Center content inside the container */
+        }
+        #image-info {
+            text-align: center;
+            margin-top: 10px;
+        }
+        #previewImage {
+            width: 100%; /* Full width */
+            max-height: 800px; /* Limit preview height */
+            object-fit: contain; /* Maintain aspect ratio of the image */
+            margin-bottom: 10px; /* Margin below preview image */
+            display: none; /* Hidden initially */
+        }
+        #printBtn {
+            display: block; /* Ensure the button is displayed */
+            margin: 0 auto; /* Center the button horizontally */
+            padding: 8px 16px; /* Increased button size */
+            background-color: #0056b3; /* Soft blue button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px; /* Increase font size */
+            justify-content: center;
+        }
+        #pageInfor {
+            display: flex;
+            justify-content: center;
+            color: black;
+            background-color: transparent;
+            margin-top: 10px;
+
+        }
+        .print-btn:hover {
+            background-color: #004080; /* Darker blue on hover */
+        }
+        #imageContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            overflow-x: auto; /* Enable vertical scrolling */
+            max-width: 2500px; /* Set max height for scrolling */
+            justify-content: center;
+            margin-top: 20px; /* Added margin-top to separate from header */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #image-info{
+            font-size: small;
+        }
+        .image-item {
+            width: 150px; /* Increased image size */
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; /* Required for positioning the button */
+        }
+        .image-item img {
+            max-width: 100%; /* Ensure images fit container */
+            max-height: 100%; /* Ensure images fit container */
+            object-fit: contain; /* Maintain aspect ratio */
+            cursor: pointer; /* Optional: Pointer cursor */
+        }
+        #pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            margin: auto;
+        }
+        .pagination-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: auto;
+            background-color: #0056b3; /* Soft blue button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .pagination-btn:hover {
+            background-color: #004080; /* Darker blue on hover */
+        }
+        #footer {
+    background-color: #0069D9; /* Soft blue footer */
+    color: white;
+    padding: 5px;
+    text-align: center;
+    position: fixed; /* Sticky footer at the bottom */
+    bottom: 0;
+    width: 100%; /* Full width */
+    font-size: small;
+    }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <div id="header">
+        <h1>Manusia Purba Printout</h1>
+    </div>
+    <!-- Search Section -->
+
+<div id="searchContainer" style="text-align: center; margin-top: 20px;">
+    <label for="startDate">Start Date & Time:</label>
+    <input type="datetime-local" id="startDate" />
+    <label for="endDate">End Date & Time:</label>
+    <input type="datetime-local" id="endDate" />
+    <button id="searchBtn" class="pagination-btn">Search</button>
+    <button id="resetSearchBtn" class="pagination-btn">Reset</button>
+</div>
+
+    <!-- Preview Image Section -->
+    <div id="previewContainer">
+        <img id="previewImage" src="" alt="Preview Image" onclick="openImageInNewTab()">
+        <button class="print-btn" id="printBtn">Print</button> <!-- Print button below preview -->
+    </div>
+    
+    <!-- Pagination Section -->
+    <div id="pagination">
+        <button class="pagination-btn" id="prevPage" disabled>Previous</button>
+        <span id="pageInfo"></span>
+        <button class="pagination-btn" id="nextPage" disabled>Next</button>
+    </div>
+    <div id="pageInfor">
+        
+    </div>
+    
+    <!-- Image Container Section -->
+    <div id="imageContainer"></div>
+
+    
+
+    <!-- Footer Section -->
+    <div id="footer">
+        IceRock Testing
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const pageSize = 10;
+
+        async function fetchImages(page) {
+    const response = await fetch(`/api/images?page=${page}`);
+    if (!response.ok) {
+        alert('Failed to load images.');
+        return;
+    }
+    const data = await response.json();
+    updateUI(data);
+
+    // Automatically preview the first image
+    if (data.images.length > 0) {
+        previewImage(data.images[0].url); // Preview the first image
+    }
+}
+
+        function updateUI(data) {
+            const imageContainer = document.getElementById('imageContainer');
+            imageContainer.innerHTML = '';
+
+            // Display images with date and clicking for preview
+            data.images.forEach(({ url, date }) => {
+                const imageWrapper = document.createElement('div');
+                imageWrapper.classList.add('image-item');
+
+                imageWrapper.innerHTML = `
+                    <img src="${url}" alt="Image" onclick="previewImage('${url}')">
+                    <div class="image-info">${date}</div>
+                `;
+                imageContainer.appendChild(imageWrapper);
+            });
+
+            // Update pagination
+            const pageInfo = document.getElementById('pageInfo');
+            pageInfo.textContent = `Page ${data.page} of ${data.totalPages}`;
+            document.getElementById('prevPage').disabled = data.page === 1;
+            document.getElementById('nextPage').disabled = data.page === data.totalPages;
+        }
+
+        function printImage(url) {
+            const printWindow = window.open(url, '_blank');
+            printWindow.onload = function() {
+                printWindow.document.head.insertAdjacentHTML('beforeend', `
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            background: white;
+                        }
+                        img {
+                            max-width: 100%;
+                            height: auto;
+                        }
+                        .print-btn {
+                            display: none; /* Hide print button for printing */
+                        }
+                    </style>
+                `);
+                printWindow.print();
+                printWindow.onafterprint = function() {
+                    printWindow.close(); // Close print window after print dialog is closed
+                };
+            };
+        }
+
+        function previewImage(url) {
+            const previewImage = document.getElementById('previewImage');
+            previewImage.src = url;
+            previewImage.style.display = 'block';
+        }
+
+        function openImageInNewTab() {
+            const previewImage = document.getElementById('previewImage');
+            if (previewImage.src) {
+                window.open(previewImage.src, '_blank'); // Open image in new tab
+            }
+        }
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchImages(currentPage);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            currentPage++;
+            fetchImages(currentPage);
+        });
+
+
+
+        // Print button functionality
+        document.getElementById('printBtn').addEventListener('click', () => {
+            const previewImage = document.getElementById('previewImage');
+            if (previewImage.src) {
+                printImage(previewImage.src);
+            }
+        });
+
+        
+
+
+        // Initial load
+        fetchImages(currentPage);
+    </script>
+</body>
+</html>
