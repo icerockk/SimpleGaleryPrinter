@@ -1,13 +1,35 @@
-**Simple Printout Application**
+# 🖨️ Simple Printout Application
 
-simple printout app using node js, express, and moment.js
+A lightweight web app built with **Node.js**, **Express**, and **Moment.js** that lets you view and print images from a specified directory — perfect for camera captures, photobooth, or personal photo archives.
 
-**Features**
+---
 
-display images from specific directory, display the image based on capture dates, print dialogue functionality, change the directory as you want to display them
+## ✨ Features
 
-**Installation**
+- 📁 **View Images from Any Folder**  
+  Easily configure the app to point to any local or network image directory.
 
-clone the repository
+- 🗓️ **Sort by Capture Date**  
+  Images are automatically sorted by their last modified timestamp.
 
--npm install express
+- 🖨️ **Print Dialog Integration**  
+  Quickly open your browser’s print dialog to generate hard copies of selected images.
+
+- ⚙️ **Customizable Directory**  
+  Change the target image folder in just one line of code.
+
+---
+
+## 🚀 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/simple-printout-app.git
+   cd simple-printout-app
+2. **Install dependencies**
+   ```bash
+   npm install express moment
+3. **Start the server**
+   ```bash
+   node app.js
+   
