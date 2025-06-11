@@ -7,8 +7,8 @@ const app = express();
 const PORT = 3000;
 
 // Network path to the CaptureResult folder
-const NETWORK_PATH = '\\\\MUNASPRASEJARAH\\CaptureResult'; // Double backslashes for UNC paths
-/* this path could be edited depend on the location of your galery */
+const NETWORK_PATH = path.join('C:', 'Put', 'your', 'directory', 'here'); // Double backslashes for UNC paths
+/* change directory depend on the location of your galery */
 
 // Serve images directly from the network path
 app.use('/images', express.static(NETWORK_PATH));
